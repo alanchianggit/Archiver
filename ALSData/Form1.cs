@@ -122,11 +122,11 @@ namespace ALSData
                 }, TaskCreationOptions.LongRunning);
             }
             Task.WaitAll();
-            this.BeginInvoke(new Action(() =>
-            {
-                UpdateStatusConsole(string.Format("Completed"));
-            }
-       ));
+       //     this.BeginInvoke(new Action(() =>
+       //     {
+       //         UpdateStatusConsole(string.Format("Completed"));
+       //     }
+       //));
         }
 
         private void UpdateProgressBar()
