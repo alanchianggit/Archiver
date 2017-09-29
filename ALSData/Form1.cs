@@ -9,11 +9,13 @@ using Microsoft.VisualBasic.FileIO;
 
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.IO;
+using System.Collections.Generic;
 
 namespace ALSData
 {
     public partial class frm_dm : Form
     {
+        private List<string> FileNameList;
         long sizeThreshold
         {
             get
@@ -44,11 +46,10 @@ namespace ALSData
         public frm_dm()
         {
             InitializeComponent();
+            this.progressBar1.Step = 1;
         }
-
-        private void btn_SelectDirectory_Click(object sender, EventArgs e)
+        private List<string> SelectFolder(bool multi)
         {
-
             if (CommonFileDialog.IsPlatformSupported)
             {
                 //Instantiate new common file dialog
@@ -57,21 +58,43 @@ namespace ALSData
                 folderSelectorDialog.EnsureReadOnly = true;
                 folderSelectorDialog.IsFolderPicker = true;
                 folderSelectorDialog.AllowNonFileSystemItems = false;
-                folderSelectorDialog.Multiselect = false;
+                folderSelectorDialog.Multiselect = multi;
                 folderSelectorDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                folderSelectorDialog.Title = "Select a path to Compress";
+                folderSelectorDialog.Title = "Select Folder";
                 //Start dialog
                 folderSelectorDialog.ShowDialog();
                 try
                 {
-                    txt_path.Text = folderSelectorDialog.FileName.ToString();
+                    FileNameList = folderSelectorDialog.FileNames.ToList();
                 }
                 catch (System.InvalidOperationException exc)
                 {
-                    Console.WriteLine(exc.Source);
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        UpdateStatusConsole(string.Format("Error occurred in {1} module : {0}.", exc.Message, System.Reflection.MethodBase.GetCurrentMethod().Name));
+                    }
+            ));
                 }
-            }
 
+
+            }
+            return FileNameList;
+        }
+
+        private void btn_SelectDirectory_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                this.txt_path.Text = string.Join(",", SelectFolder(false));
+            }
+            catch (System.ArgumentNullException exc)
+            {
+                this.BeginInvoke(new Action(() =>
+                {
+                    UpdateStatusConsole(string.Format("Error occurred in {1} module : {0}.", exc.Message, System.Reflection.MethodBase.GetCurrentMethod().Name));
+                }
+            ));
+            }
         }
 
         private string ParseFolderNames(string folderName)
@@ -95,21 +118,23 @@ namespace ALSData
 
         private void PackFilesInFolder()
         {
+            
             //define splitting criteria for exclusion folder textfield
             string[] splittercriteria = { "," };
             //create array for exclusion folder textfield
             string[] splitInput = this.txt_Exclusion.Text.Split(splittercriteria, StringSplitOptions.RemoveEmptyEntries);
             //append starting path for each exclusion folder
-            string[] exclusionFolders = splitInput.Select(x => startPath + "\\" + x.Trim()).ToArray();
+            //string[] exclusionFolders = splitInput.Select(x => startPath + "\\" + x.Trim()).ToArray();
             //Select all folders from startpath except exclusion folder
-            string[] foldersindirectory = Directory.GetDirectories(startPath).Except(exclusionFolders).ToArray();
+            //string[] foldersindirectory = Directory.GetDirectories(startPath).Except(exclusionFolders).ToArray();
+            string[] foldersindirectory = Directory.GetDirectories(startPath).Except(splitInput).ToArray();
             //set progress bar maximum to the number of directories
             this.progressBar1.Maximum = foldersindirectory.Length;
             //disable compress button when compress starts
             this.btn_Compress.Enabled = false;
             this.BeginInvoke(new Action(() =>
             {
-                UpdateStatusConsole(string.Format("Start packing {0} folders from {1}", foldersindirectory.Length,startPath));
+                UpdateStatusConsole(string.Format("Start packing {0} folders from {1}", foldersindirectory.Length, startPath));
             }
             ));
             //Loop through folders in directory
@@ -122,22 +147,19 @@ namespace ALSData
                 }, TaskCreationOptions.LongRunning);
             }
             Task.WaitAll();
-       //     this.BeginInvoke(new Action(() =>
-       //     {
-       //         UpdateStatusConsole(string.Format("Completed"));
-       //     }
-       //));
         }
 
-        private void UpdateProgressBar()
+        private void UpdateProgress()
         {
             //If progressbar max is not at 0
             if (this.progressBar1.Maximum != 0)
             {
-                //Increment progress bar by 1
-                progressBar1.Increment(1);
+                //Increment progress bar by step
+                this.progressBar1.PerformStep();
+                this.label_Progress.Text = string.Format(@"{0}/{1}", this.progressBar1.Value, this.progressBar1.Maximum);
+
             }
-            //IF progressbar is at maximum
+            //If progressbar is at maximum
             if (this.progressBar1.Value == this.progressBar1.Maximum)
             {
                 //enable all controls
@@ -145,6 +167,9 @@ namespace ALSData
                 this.btn_SelectDirectory.Enabled = true;
                 this.chkbox_DeleteWhenComplete.Enabled = true;
                 this.chkbox_SkipFolders.Enabled = true;
+                this.btn_SelectExclusion.Enabled = true;
+                //updates status to "Complete"
+                UpdateStatusConsole("Completed.");
             }
 
         }
@@ -177,8 +202,8 @@ namespace ALSData
                     this.BeginInvoke
                         (new Action(() =>
                         {
-                            UpdateProgressBar();
                             UpdateStatusConsole("Zipped " + di.Name + @".");
+                            UpdateProgress();
                         }
                         ));
                 }
@@ -187,7 +212,7 @@ namespace ALSData
                     this.BeginInvoke
                         (new Action(() =>
                         {
-                        UpdateStatusConsole(di.Name + " Already exists. Skipped");
+                            UpdateStatusConsole(di.Name + " Already exists. Skipped");
                         }
                         ));
                 }
@@ -216,13 +241,12 @@ namespace ALSData
         private void btn_Compress_Click(object sender, EventArgs e)
         {
             //When progressbar is at 0
-            if (this.progressBar1.Value == 0)
-            {
-                this.btn_Compress.Enabled = false;
-                this.btn_SelectDirectory.Enabled = false;
-                this.chkbox_DeleteWhenComplete.Enabled = false;
-                this.chkbox_SkipFolders.Enabled = false;
-            }
+            this.btn_Compress.Enabled = false;
+            this.btn_SelectDirectory.Enabled = false;
+            this.chkbox_DeleteWhenComplete.Enabled = false;
+            this.chkbox_SkipFolders.Enabled = false;
+            this.btn_SelectExclusion.Enabled = false;
+            this.progressBar1.Value = 0;
             PackFilesInFolder();
 
         }
@@ -245,6 +269,20 @@ namespace ALSData
             return size;
         }
 
-
+        private void btn_SelectExclusion_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                this.txt_Exclusion.Text = string.Join(",", SelectFolder(true));
+            }
+            catch (System.ArgumentNullException exc)
+            {
+                this.BeginInvoke(new Action(() =>
+                {
+                    UpdateStatusConsole(string.Format("Error occurred in {1} module : {0}.", exc.Message, System.Reflection.MethodBase.GetCurrentMethod().Name));
+                }
+            ));
+            }
+        }
     }
 }

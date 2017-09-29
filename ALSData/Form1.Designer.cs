@@ -39,14 +39,16 @@
             this.txt_status = new System.Windows.Forms.TextBox();
             this.Label_Exclusion = new System.Windows.Forms.Label();
             this.txt_Exclusion = new System.Windows.Forms.TextBox();
+            this.label_Progress = new System.Windows.Forms.Label();
+            this.btn_SelectExclusion = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_SelectDirectory
             // 
-            this.btn_SelectDirectory.Location = new System.Drawing.Point(10, 31);
+            this.btn_SelectDirectory.Location = new System.Drawing.Point(416, 15);
             this.btn_SelectDirectory.Name = "btn_SelectDirectory";
-            this.btn_SelectDirectory.Size = new System.Drawing.Size(91, 50);
+            this.btn_SelectDirectory.Size = new System.Drawing.Size(154, 30);
             this.btn_SelectDirectory.TabIndex = 0;
             this.btn_SelectDirectory.Text = "Select Directory";
             this.btn_SelectDirectory.UseVisualStyleBackColor = true;
@@ -55,7 +57,7 @@
             // Label_Path
             // 
             this.Label_Path.AutoSize = true;
-            this.Label_Path.Location = new System.Drawing.Point(108, 15);
+            this.Label_Path.Location = new System.Drawing.Point(12, 9);
             this.Label_Path.Name = "Label_Path";
             this.Label_Path.Size = new System.Drawing.Size(32, 13);
             this.Label_Path.TabIndex = 1;
@@ -63,14 +65,14 @@
             // 
             // txt_path
             // 
-            this.txt_path.Location = new System.Drawing.Point(108, 31);
+            this.txt_path.Location = new System.Drawing.Point(12, 25);
             this.txt_path.Name = "txt_path";
-            this.txt_path.Size = new System.Drawing.Size(383, 20);
+            this.txt_path.Size = new System.Drawing.Size(398, 20);
             this.txt_path.TabIndex = 2;
             // 
             // btn_Compress
             // 
-            this.btn_Compress.Location = new System.Drawing.Point(9, 264);
+            this.btn_Compress.Location = new System.Drawing.Point(581, 258);
             this.btn_Compress.Name = "btn_Compress";
             this.btn_Compress.Size = new System.Drawing.Size(92, 100);
             this.btn_Compress.TabIndex = 0;
@@ -81,7 +83,7 @@
             // chkbox_DeleteWhenComplete
             // 
             this.chkbox_DeleteWhenComplete.AutoSize = true;
-            this.chkbox_DeleteWhenComplete.Location = new System.Drawing.Point(108, 101);
+            this.chkbox_DeleteWhenComplete.Location = new System.Drawing.Point(12, 108);
             this.chkbox_DeleteWhenComplete.Name = "chkbox_DeleteWhenComplete";
             this.chkbox_DeleteWhenComplete.Size = new System.Drawing.Size(159, 17);
             this.chkbox_DeleteWhenComplete.TabIndex = 3;
@@ -93,7 +95,7 @@
             this.chkbox_SkipFolders.AutoSize = true;
             this.chkbox_SkipFolders.Checked = true;
             this.chkbox_SkipFolders.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkbox_SkipFolders.Location = new System.Drawing.Point(108, 134);
+            this.chkbox_SkipFolders.Location = new System.Drawing.Point(188, 108);
             this.chkbox_SkipFolders.Name = "chkbox_SkipFolders";
             this.chkbox_SkipFolders.Size = new System.Drawing.Size(174, 17);
             this.chkbox_SkipFolders.TabIndex = 3;
@@ -108,7 +110,7 @@
             0,
             0,
             0});
-            this.numericUpDown1.Location = new System.Drawing.Point(298, 131);
+            this.numericUpDown1.Location = new System.Drawing.Point(378, 106);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -125,24 +127,25 @@
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(9, 370);
+            this.progressBar1.Location = new System.Drawing.Point(12, 364);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(657, 23);
+            this.progressBar1.Size = new System.Drawing.Size(558, 23);
+            this.progressBar1.Step = 1;
             this.progressBar1.TabIndex = 5;
             // 
             // txt_status
             // 
-            this.txt_status.Location = new System.Drawing.Point(108, 169);
+            this.txt_status.Location = new System.Drawing.Point(12, 132);
             this.txt_status.Multiline = true;
             this.txt_status.Name = "txt_status";
             this.txt_status.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txt_status.Size = new System.Drawing.Size(558, 195);
+            this.txt_status.Size = new System.Drawing.Size(558, 226);
             this.txt_status.TabIndex = 6;
             // 
             // Label_Exclusion
             // 
             this.Label_Exclusion.AutoSize = true;
-            this.Label_Exclusion.Location = new System.Drawing.Point(108, 59);
+            this.Label_Exclusion.Location = new System.Drawing.Point(12, 53);
             this.Label_Exclusion.Name = "Label_Exclusion";
             this.Label_Exclusion.Size = new System.Drawing.Size(227, 13);
             this.Label_Exclusion.TabIndex = 1;
@@ -150,16 +153,36 @@
             // 
             // txt_Exclusion
             // 
-            this.txt_Exclusion.Location = new System.Drawing.Point(108, 75);
+            this.txt_Exclusion.Location = new System.Drawing.Point(12, 69);
             this.txt_Exclusion.Name = "txt_Exclusion";
-            this.txt_Exclusion.Size = new System.Drawing.Size(383, 20);
+            this.txt_Exclusion.Size = new System.Drawing.Size(398, 20);
             this.txt_Exclusion.TabIndex = 2;
+            // 
+            // label_Progress
+            // 
+            this.label_Progress.AutoSize = true;
+            this.label_Progress.Location = new System.Drawing.Point(618, 374);
+            this.label_Progress.Name = "label_Progress";
+            this.label_Progress.Size = new System.Drawing.Size(24, 13);
+            this.label_Progress.TabIndex = 7;
+            this.label_Progress.Text = "0/0";
+            // 
+            // btn_SelectExclusion
+            // 
+            this.btn_SelectExclusion.Location = new System.Drawing.Point(416, 63);
+            this.btn_SelectExclusion.Name = "btn_SelectExclusion";
+            this.btn_SelectExclusion.Size = new System.Drawing.Size(154, 30);
+            this.btn_SelectExclusion.TabIndex = 0;
+            this.btn_SelectExclusion.Text = "Select Exclusion Directories";
+            this.btn_SelectExclusion.UseVisualStyleBackColor = true;
+            this.btn_SelectExclusion.Click += new System.EventHandler(this.btn_SelectExclusion_Click);
             // 
             // frm_dm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(674, 403);
+            this.ClientSize = new System.Drawing.Size(683, 408);
+            this.Controls.Add(this.label_Progress);
             this.Controls.Add(this.txt_status);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.numericUpDown1);
@@ -170,6 +193,7 @@
             this.Controls.Add(this.txt_path);
             this.Controls.Add(this.Label_Path);
             this.Controls.Add(this.btn_Compress);
+            this.Controls.Add(this.btn_SelectExclusion);
             this.Controls.Add(this.btn_SelectDirectory);
             this.MaximizeBox = false;
             this.Name = "frm_dm";
@@ -192,6 +216,8 @@
         private System.Windows.Forms.TextBox txt_status;
         private System.Windows.Forms.Label Label_Exclusion;
         private System.Windows.Forms.TextBox txt_Exclusion;
+        private System.Windows.Forms.Label label_Progress;
+        private System.Windows.Forms.Button btn_SelectExclusion;
     }
 }
 
