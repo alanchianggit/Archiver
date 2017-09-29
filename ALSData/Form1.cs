@@ -164,6 +164,7 @@ namespace ALSData
             string[] foldersindirectory = Directory.GetDirectories(startPath).Except(splitInput).ToArray();
             //set progress bar maximum to the number of directories
             this.progressBar1.Maximum = foldersindirectory.Length;
+            this.label_Progress.Text = string.Format(@"{0}/{1}", this.progressBar1.Value, this.progressBar1.Maximum);
             //disable compress button when compress starts
             this.btn_Compress.Enabled = false;
             this.BeginInvoke(new Action(() =>
@@ -229,7 +230,7 @@ namespace ALSData
                     this.BeginInvoke
                         (new Action(() =>
                         {
-                            UpdateStatusConsole("Initiating " + di.Name + @".");
+                            UpdateStatusConsole(string.Format("Initiating '{0}'.", di.Name));
                         }
                         ));
                     //Compress file using IO.COmpression Zipfile Library
@@ -237,7 +238,7 @@ namespace ALSData
                     this.BeginInvoke
                         (new Action(() =>
                         {
-                            UpdateStatusConsole("Zipped " + di.Name + @".");
+                            UpdateStatusConsole(string.Format("'{0}' Zipped.", di.Name));
                             UpdateProgress();
                         }
                         ));
@@ -247,7 +248,8 @@ namespace ALSData
                     this.BeginInvoke
                         (new Action(() =>
                         {
-                            UpdateStatusConsole(di.Name + " Already exists. Skipped");
+                            UpdateStatusConsole(string.Format("Zip file for '{0}' exists. Skipped.",di.Name));
+                            UpdateProgress();
                         }
                         ));
                 }
