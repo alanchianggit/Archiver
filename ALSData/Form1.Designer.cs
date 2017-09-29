@@ -41,12 +41,13 @@
             this.txt_Exclusion = new System.Windows.Forms.TextBox();
             this.label_Progress = new System.Windows.Forms.Label();
             this.btn_SelectExclusion = new System.Windows.Forms.Button();
+            this.chkbox_AllowMultiPath = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_SelectDirectory
             // 
-            this.btn_SelectDirectory.Location = new System.Drawing.Point(416, 15);
+            this.btn_SelectDirectory.Location = new System.Drawing.Point(416, 24);
             this.btn_SelectDirectory.Name = "btn_SelectDirectory";
             this.btn_SelectDirectory.Size = new System.Drawing.Size(154, 30);
             this.btn_SelectDirectory.TabIndex = 0;
@@ -65,7 +66,7 @@
             // 
             // txt_path
             // 
-            this.txt_path.Location = new System.Drawing.Point(12, 25);
+            this.txt_path.Location = new System.Drawing.Point(12, 29);
             this.txt_path.Name = "txt_path";
             this.txt_path.Size = new System.Drawing.Size(398, 20);
             this.txt_path.TabIndex = 2;
@@ -147,9 +148,9 @@
             this.Label_Exclusion.AutoSize = true;
             this.Label_Exclusion.Location = new System.Drawing.Point(12, 53);
             this.Label_Exclusion.Name = "Label_Exclusion";
-            this.Label_Exclusion.Size = new System.Drawing.Size(227, 13);
+            this.Label_Exclusion.Size = new System.Drawing.Size(343, 13);
             this.Label_Exclusion.TabIndex = 1;
-            this.Label_Exclusion.Text = "Exclusion Folder Name (separate with comma):";
+            this.Label_Exclusion.Text = "Exclusion Folder Path (Need Complete Network Path and separate with comma):";
             // 
             // txt_Exclusion
             // 
@@ -177,11 +178,22 @@
             this.btn_SelectExclusion.UseVisualStyleBackColor = true;
             this.btn_SelectExclusion.Click += new System.EventHandler(this.btn_SelectExclusion_Click);
             // 
+            // chkbox_AllowMultiPath
+            // 
+            this.chkbox_AllowMultiPath.AutoSize = true;
+            this.chkbox_AllowMultiPath.Location = new System.Drawing.Point(581, 31);
+            this.chkbox_AllowMultiPath.Name = "chkbox_AllowMultiPath";
+            this.chkbox_AllowMultiPath.Size = new System.Drawing.Size(143, 17);
+            this.chkbox_AllowMultiPath.TabIndex = 8;
+            this.chkbox_AllowMultiPath.Text = "Allow Multiple Directories";
+            this.chkbox_AllowMultiPath.UseVisualStyleBackColor = true;
+            // 
             // frm_dm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(683, 408);
+            this.ClientSize = new System.Drawing.Size(735, 398);
+            this.Controls.Add(this.chkbox_AllowMultiPath);
             this.Controls.Add(this.label_Progress);
             this.Controls.Add(this.txt_status);
             this.Controls.Add(this.progressBar1);
@@ -218,6 +230,7 @@
         private System.Windows.Forms.TextBox txt_Exclusion;
         private System.Windows.Forms.Label label_Progress;
         private System.Windows.Forms.Button btn_SelectExclusion;
+        private System.Windows.Forms.CheckBox chkbox_AllowMultiPath;
     }
 }
 

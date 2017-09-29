@@ -16,14 +16,14 @@ namespace ALSData
     public partial class frm_dm : Form
     {
         private List<string> FileNameList;
-        long sizeThreshold
+        private long sizeThreshold
         {
             get
             {
                 return (long)this.numericUpDown1.Value;
             }
         }
-        string startPath
+        private string startPath
         {
             get
             {
@@ -35,19 +35,45 @@ namespace ALSData
             }
         }
 
-        bool toDelete
-        {
-            get
-            {
-                return this.chkbox_DeleteWhenComplete.Checked;
-            }
-        }
-
         public frm_dm()
         {
             InitializeComponent();
             this.progressBar1.Step = 1;
         }
+
+        private string SelectFolder()
+        {
+            if (CommonFileDialog.IsPlatformSupported)
+            {
+                //Instantiate new common file dialog
+                var folderSelectorDialog = new CommonOpenFileDialog();
+                //Properties for dialog
+                folderSelectorDialog.EnsureReadOnly = true;
+                folderSelectorDialog.IsFolderPicker = true;
+                folderSelectorDialog.AllowNonFileSystemItems = false;
+                folderSelectorDialog.Multiselect = false;
+                folderSelectorDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                folderSelectorDialog.Title = "Select Folder";
+                //Start dialog
+                folderSelectorDialog.ShowDialog();
+                try
+                {
+                    FileNameList = folderSelectorDialog.FileNames.ToList();
+                }
+                catch (System.InvalidOperationException exc)
+                {
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        UpdateStatusConsole(string.Format("Error occurred in {1} module : {0}.", exc.Message, System.Reflection.MethodBase.GetCurrentMethod().Name));
+                    }
+            ));
+                }
+
+
+            }
+            return FileNameList.First();
+        }
+
         private List<string> SelectFolder(bool multi)
         {
             if (CommonFileDialog.IsPlatformSupported)
@@ -85,7 +111,15 @@ namespace ALSData
         {
             try
             {
-                this.txt_path.Text = string.Join(",", SelectFolder(false));
+                if (this.chkbox_AllowMultiPath.Checked == true)
+                {
+                    this.txt_path.Text = string.Join(",", SelectFolder(true));
+                }
+                else if (this.chkbox_AllowMultiPath.Checked == false)
+                { 
+                    this.txt_path.Text = string.Join(",", SelectFolder());
+                }
+
             }
             catch (System.ArgumentNullException exc)
             {
@@ -168,6 +202,7 @@ namespace ALSData
                 this.chkbox_DeleteWhenComplete.Enabled = true;
                 this.chkbox_SkipFolders.Enabled = true;
                 this.btn_SelectExclusion.Enabled = true;
+                this.chkbox_AllowMultiPath.Enabled = true;
                 //updates status to "Complete"
                 UpdateStatusConsole("Completed.");
             }
@@ -217,7 +252,7 @@ namespace ALSData
                         ));
                 }
             }
-            if (this.toDelete == true)
+            if (this.chkbox_DeleteWhenComplete.Checked == true)
             {
                 try
                 {
@@ -240,12 +275,13 @@ namespace ALSData
 
         private void btn_Compress_Click(object sender, EventArgs e)
         {
-            //When progressbar is at 0
+            //disables all controls
             this.btn_Compress.Enabled = false;
             this.btn_SelectDirectory.Enabled = false;
             this.chkbox_DeleteWhenComplete.Enabled = false;
             this.chkbox_SkipFolders.Enabled = false;
             this.btn_SelectExclusion.Enabled = false;
+            this.chkbox_AllowMultiPath.Enabled = false;
             this.progressBar1.Value = 0;
             PackFilesInFolder();
 
@@ -273,7 +309,8 @@ namespace ALSData
         {
             try
             {
-                this.txt_Exclusion.Text = string.Join(",", SelectFolder(true));
+                //append selected folders to current selections
+                this.txt_Exclusion.Text = this.txt_Exclusion.Text + "," + string.Join(",", SelectFolder(true));
             }
             catch (System.ArgumentNullException exc)
             {
