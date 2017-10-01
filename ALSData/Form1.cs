@@ -23,6 +23,15 @@ namespace ALSData
                 return (long)this.numericUpDown1.Value;
             }
         }
+
+        private string[] splitInput
+        {
+            get
+            {
+                string[] items = this.checkedListBox1.CheckedItems.OfType<string>().ToArray();
+                return items;
+            }
+        }
         private string startPath
         {
             get
@@ -116,10 +125,10 @@ namespace ALSData
                     this.txt_path.Text = string.Join(",", SelectFolder(true));
                 }
                 else if (this.chkbox_AllowMultiPath.Checked == false)
-                { 
+                {
                     this.txt_path.Text = string.Join(",", SelectFolder());
                 }
-
+                this.txt_OutPutPath.Text = this.txt_path.Text;
             }
             catch (System.ArgumentNullException exc)
             {
@@ -152,11 +161,11 @@ namespace ALSData
 
         private void PackFilesInFolder()
         {
-            
+
             //define splitting criteria for exclusion folder textfield
-            string[] splittercriteria = { "," };
+            //string[] splittercriteria = { "," };
             //create array for exclusion folder textfield
-            string[] splitInput = this.txt_Exclusion.Text.Split(splittercriteria, StringSplitOptions.RemoveEmptyEntries);
+            //string[] splitInput = this.txt_Exclusion.Text.Split(splittercriteria, StringSplitOptions.RemoveEmptyEntries);
             //append starting path for each exclusion folder
             //string[] exclusionFolders = splitInput.Select(x => startPath + "\\" + x.Trim()).ToArray();
             //Select all folders from startpath except exclusion folder
@@ -204,8 +213,10 @@ namespace ALSData
                 this.chkbox_SkipFolders.Enabled = true;
                 this.btn_SelectExclusion.Enabled = true;
                 this.chkbox_AllowMultiPath.Enabled = true;
+                this.btn_SelectOutPutPath.Enabled = true;
+                //this.txt_OutPutPath.Enabled = true;
                 //updates status to "Complete"
-                UpdateStatusConsole("Completed.");
+                UpdateStatusConsole("Completed Zipping.");
             }
 
         }
@@ -221,8 +232,8 @@ namespace ALSData
         private void PackingFolder(string folderPath)
         {
             DirectoryInfo di = new DirectoryInfo(folderPath);
-            string zipFileName = this.startPath + @"\\" + ParseFolderNames(di.Name) + ".zip";
-            //need to catch zipfile existed error
+            string zipFileName = this.txt_OutPutPath.Text + @"\\" + ParseFolderNames(di.Name) + ".zip";
+            long dirsize = DirSize(di);
             if (DirSize(di) / 1024f > sizeThreshold)
             {
                 try
@@ -235,6 +246,8 @@ namespace ALSData
                         ));
                     //Compress file using IO.COmpression Zipfile Library
                     ZipFile.CreateFromDirectory(folderPath, zipFileName);
+                    //Delete algorithm
+                    ProcessDelete(di);
                     this.BeginInvoke
                         (new Action(() =>
                         {
@@ -243,17 +256,22 @@ namespace ALSData
                         }
                         ));
                 }
+                //Catch Zip file existence exception
                 catch (System.IO.IOException)
                 {
                     this.BeginInvoke
                         (new Action(() =>
                         {
-                            UpdateStatusConsole(string.Format("Zip file for '{0}' exists. Skipped.",di.Name));
+                            UpdateStatusConsole(string.Format("Zip file for '{0}' exists. Skipped.", di.Name));
                             UpdateProgress();
                         }
                         ));
                 }
             }
+
+        }
+        private void ProcessDelete(DirectoryInfo di)
+        {
             if (this.chkbox_DeleteWhenComplete.Checked == true)
             {
                 try
@@ -275,6 +293,7 @@ namespace ALSData
             }
         }
 
+
         private void btn_Compress_Click(object sender, EventArgs e)
         {
             //disables all controls
@@ -284,6 +303,8 @@ namespace ALSData
             this.chkbox_SkipFolders.Enabled = false;
             this.btn_SelectExclusion.Enabled = false;
             this.chkbox_AllowMultiPath.Enabled = false;
+            this.btn_SelectOutPutPath.Enabled = false;
+            //this.txt_OutPutPath.Enabled = false;
             this.progressBar1.Value = 0;
             PackFilesInFolder();
 
@@ -311,8 +332,42 @@ namespace ALSData
         {
             try
             {
-                //append selected folders to current selections
-                this.txt_Exclusion.Text = this.txt_Exclusion.Text + "," + string.Join(",", SelectFolder(true));
+                //Get folders to exclude
+                string[] folders = SelectFolder(true).ToArray<string>();
+                //Get Items from checkedlistbox
+                string[] ItemList = this.checkedListBox1.Items.OfType<string>().ToArray<string>();
+                //filter Folders from the names in itemlist
+                string[] newEntry = folders.Except(ItemList).ToArray();
+                //append new filtered list
+                this.checkedListBox1.Items.AddRange(newEntry);
+                //Create temporary list to allow iteration
+                List<string> templist = this.checkedListBox1.Items.OfType<string>().ToList() ;
+                //loop through each item in templist
+                foreach (string item in templist)
+                {
+                    //if list contains item
+                    if (templist.Contains(item)==true)
+                    {
+                        //check such item based on index
+                        this.checkedListBox1.SetItemChecked(this.checkedListBox1.Items.IndexOf(item),true);
+                    }
+                }
+            }
+            catch (System.ArgumentNullException exc)
+            {
+                this.BeginInvoke(new Action(() =>
+                {
+                    UpdateStatusConsole(string.Format("Error occurred in {1} module : {0}.", exc.Message, System.Reflection.MethodBase.GetCurrentMethod().Name));
+                }
+            ));
+            }
+        }
+
+        private void btn_SelectOutPutPath_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                this.txt_OutPutPath.Text = string.Join(",", SelectFolder());
             }
             catch (System.ArgumentNullException exc)
             {
