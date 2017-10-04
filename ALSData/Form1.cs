@@ -144,17 +144,17 @@ namespace ALSData
         {
             //Start builder class
             StringBuilder sb = new StringBuilder(string.Empty);
-            //if the folderpath ends with ".b"
-            if (folderName.Substring(folderName.Length - 2) == ".b")
-            {
-                //add name to builder without ".b"
-                sb = sb.Append(folderName.Substring(0, folderName.Length - 2));
-            }
-            else
-            {
-                //add name to builder
+            ////if the folderpath ends with ".b"
+            //if (folderName.Substring(folderName.Length - 2) == ".b")
+            //{
+            //    //add name to builder without ".b"
+            //    sb = sb.Append(folderName.Substring(0, folderName.Length - 2));
+            //}
+            //else
+            //{
+            //    //add name to builder
                 sb = sb.Append(folderName);
-            }
+            //}
 
             return sb.ToString();
         }
@@ -170,7 +170,7 @@ namespace ALSData
             //string[] exclusionFolders = splitInput.Select(x => startPath + "\\" + x.Trim()).ToArray();
             //Select all folders from startpath except exclusion folder
             //string[] foldersindirectory = Directory.GetDirectories(startPath).Except(exclusionFolders).ToArray();
-            string[] foldersindirectory = Directory.GetDirectories(startPath).Except(splitInput).ToArray();
+            string[] foldersindirectory = Directory.GetDirectories(startPath).Except(splitInput,StringComparer.OrdinalIgnoreCase).ToArray();
             //set progress bar maximum to the number of directories
             this.progressBar1.Maximum = foldersindirectory.Length;
             this.label_Progress.Text = string.Format(@"{0}/{1}", this.progressBar1.Value, this.progressBar1.Maximum);
@@ -233,7 +233,7 @@ namespace ALSData
         {
             DirectoryInfo di = new DirectoryInfo(folderPath);
             string zipFileName = this.txt_OutPutPath.Text + @"\\" + ParseFolderNames(di.Name) + ".zip";
-            long dirsize = DirSize(di);
+            
             if (DirSize(di) / 1024f > sizeThreshold)
             {
                 try
