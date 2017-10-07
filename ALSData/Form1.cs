@@ -15,6 +15,10 @@ namespace ALSData
 {
     public partial class frm_dm : Form
     {
+        List<string> CheckedNodes = new List<string>();
+
+        private int intnodeChecked { get; set; }
+
         private List<string> FileNameList;
         private long sizeThreshold
         {
@@ -47,7 +51,7 @@ namespace ALSData
         public frm_dm()
         {
             InitializeComponent();
-            this.progressBar1.Step = 1;
+            //this.progressBar1.Step = 1;
         }
 
         private string SelectFolder()
@@ -116,45 +120,125 @@ namespace ALSData
             return FileNameList;
         }
 
+        private void ListDirectory(TreeView treeView, string path)
+        {
+            //treeView.Nodes.Clear();
+            DirectoryInfo rootDirectoryInfo = new DirectoryInfo(path);
+            treeView.Nodes.Add(CreateDirectoryNode(rootDirectoryInfo));
+        }
+
+        private TreeNode CreateDirectoryNode(DirectoryInfo directoryInfo)
+        {
+            TreeNode directoryNode = new TreeNode(directoryInfo.FullName);
+            directoryNode.Checked = true;
+            foreach (DirectoryInfo directory in directoryInfo.GetDirectories())
+            {
+                directoryNode.Nodes.Add(directory.FullName, directory.FullName);
+                directoryNode.Nodes[directory.FullName].Checked = true;
+                CheckedNodes.Add(directoryNode.Nodes[directory.FullName].Text.ToString());
+            }
+            //recursive sub-directories
+            //foreach (var directory in directoryInfo.GetDirectories())
+            //    directoryNode.Nodes.Add(CreateDirectoryNode(directory));
+            //files 
+            //foreach (var file in directoryInfo.GetFiles())
+            //    directoryNode.Nodes.Add(new TreeNode(file.Name));
+            return directoryNode;
+        }
+        // Updates all child tree nodes recursively.
+        private void CheckAllChildNodes(TreeNode treeNode, bool nodeChecked)
+        {
+            foreach (TreeNode node in treeNode.Nodes)
+            {
+                node.Checked = nodeChecked;
+                //count checked nodes
+                //if (nodeChecked == true) { intnodeChecked += 1; } else { intnodeChecked -= 1; }
+                if (node.Nodes.Count > 0)
+                {
+                    // If the current node has child nodes, call the CheckAllChildsNodes method recursively.
+                    this.CheckAllChildNodes(node, nodeChecked);
+                }
+                if (node.Nodes.Count == 0)
+                {
+                    if (node.Checked == true)
+                    {
+                        CheckedNodes.Add(node.FullPath.ToString());
+                    }
+                    else if (node.Checked == false)
+                    {
+                        CheckedNodes.Remove(node.FullPath.ToString());
+                    }
+                }
+            }
+        }
+
+        // NOTE   This code can be added to the BeforeCheck event handler instead of the AfterCheck event.
+        // After a tree node's Checked property is changed, all its child nodes are updated to the same value.
+        private void node_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            // The code only executes if the user caused the checked state to change.
+            //if (e.Action != TreeViewAction.Unknown)
+            //{
+            if (e.Node.Nodes.Count > 0)
+            {
+                /* Calls the CheckAllChildNodes method, passing in the current 
+                Checked value of the TreeNode whose checked state changed. */
+                this.CheckAllChildNodes(e.Node, e.Node.Checked);
+            }
+            else if (e.Node.Nodes.Count == 0)
+            {
+                if (e.Node.Checked == true)
+                {
+                    CheckedNodes.Add(e.Node.FullPath.ToString());
+                }
+                else if (e.Node.Checked == false)
+                {
+                    CheckedNodes.Remove(e.Node.FullPath.ToString());
+                }
+
+                //if (e.Node.Checked== true) { intnodeChecked += 1; } else { intnodeChecked -= 1; }
+            }
+            //}
+
+            //this.label_Progress.Text = string.Format(@"{0}/{1}", this.progressBar1.Value, intnodeChecked);
+        }
+
+
+
         private void btn_SelectDirectory_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (this.chkbox_AllowMultiPath.Checked == true)
-                {
-                    this.txt_path.Text = string.Join(",", SelectFolder(true));
-                }
-                else if (this.chkbox_AllowMultiPath.Checked == false)
-                {
-                    this.txt_path.Text = string.Join(",", SelectFolder());
-                }
-                this.txt_OutPutPath.Text = this.txt_path.Text;
-            }
-            catch (System.ArgumentNullException exc)
-            {
-                this.BeginInvoke(new Action(() =>
-                {
-                    UpdateStatusConsole(string.Format("Error occurred in {1} module : {0}.", exc.Message, System.Reflection.MethodBase.GetCurrentMethod().Name));
-                }
-            ));
-            }
+
+            //TreeView Approach 
+            ListDirectory(this.treeview_Directories, SelectFolder());
+
+            // chkbox approach
+            //try
+            //{
+            //    if (this.chkbox_AllowMultiPath.Checked == true)
+            //    {
+            //        this.txt_path.Text = string.Join(",", SelectFolder(true));
+            //    }
+            //    else if (this.chkbox_AllowMultiPath.Checked == false)
+            //    {
+            //        this.txt_path.Text = string.Join(",", SelectFolder());
+            //    }
+            //    this.txt_OutPutPath.Text = this.txt_path.Text;
+            //}
+            //catch (System.ArgumentNullException exc)
+            //{
+            //    this.BeginInvoke(new Action(() =>
+            //    {
+            //        UpdateStatusConsole(string.Format("Error occurred in {1} module : {0}.", exc.Message, System.Reflection.MethodBase.GetCurrentMethod().Name));
+            //    }
+            //));
+            //}
         }
 
         private string ParseFolderNames(string folderName)
         {
             //Start builder class
             StringBuilder sb = new StringBuilder(string.Empty);
-            ////if the folderpath ends with ".b"
-            //if (folderName.Substring(folderName.Length - 2) == ".b")
-            //{
-            //    //add name to builder without ".b"
-            //    sb = sb.Append(folderName.Substring(0, folderName.Length - 2));
-            //}
-            //else
-            //{
-            //    //add name to builder
-                sb = sb.Append(folderName);
-            //}
+            sb = sb.Append(folderName);
 
             return sb.ToString();
         }
@@ -162,15 +246,11 @@ namespace ALSData
         private void PackFilesInFolder()
         {
 
-            //define splitting criteria for exclusion folder textfield
-            //string[] splittercriteria = { "," };
-            //create array for exclusion folder textfield
-            //string[] splitInput = this.txt_Exclusion.Text.Split(splittercriteria, StringSplitOptions.RemoveEmptyEntries);
-            //append starting path for each exclusion folder
-            //string[] exclusionFolders = splitInput.Select(x => startPath + "\\" + x.Trim()).ToArray();
             //Select all folders from startpath except exclusion folder
-            //string[] foldersindirectory = Directory.GetDirectories(startPath).Except(exclusionFolders).ToArray();
-            string[] foldersindirectory = Directory.GetDirectories(startPath).Except(splitInput,StringComparer.OrdinalIgnoreCase).ToArray();
+            //string[] foldersindirectory = Directory.GetDirectories(startPath).Except(splitInput, StringComparer.OrdinalIgnoreCase).ToArray();
+
+            //Treeview
+            string[] foldersindirectory = CheckedNodes.ToArray();
             //set progress bar maximum to the number of directories
             this.progressBar1.Maximum = foldersindirectory.Length;
             this.label_Progress.Text = string.Format(@"{0}/{1}", this.progressBar1.Value, this.progressBar1.Maximum);
@@ -233,7 +313,7 @@ namespace ALSData
         {
             DirectoryInfo di = new DirectoryInfo(folderPath);
             string zipFileName = this.txt_OutPutPath.Text + @"\\" + ParseFolderNames(di.Name) + ".zip";
-            
+
             if (DirSize(di) / 1024f > sizeThreshold)
             {
                 try
@@ -259,13 +339,16 @@ namespace ALSData
                 //Catch Zip file existence exception
                 catch (System.IO.IOException)
                 {
-                    this.BeginInvoke
-                        (new Action(() =>
-                        {
-                            UpdateStatusConsole(string.Format("Zip file for '{0}' exists. Skipped.", di.Name));
-                            UpdateProgress();
-                        }
-                        ));
+                    if (File.Exists(this.txt_OutPutPath.Text + @"\\" + ParseFolderNames(di.Name) + ".zip") == true)
+                    {
+                        this.BeginInvoke
+                            (new Action(() =>
+                            {
+                                UpdateStatusConsole(string.Format("Zip file for '{0}' exists. Skipped.", di.Name));
+                                UpdateProgress();
+                            }
+                            ));
+                    }
                 }
             }
 
@@ -341,15 +424,15 @@ namespace ALSData
                 //append new filtered list
                 this.checkedListBox1.Items.AddRange(newEntry);
                 //Create temporary list to allow iteration
-                List<string> templist = this.checkedListBox1.Items.OfType<string>().ToList() ;
+                List<string> templist = this.checkedListBox1.Items.OfType<string>().ToList();
                 //loop through each item in templist
                 foreach (string item in templist)
                 {
                     //if list contains item
-                    if (templist.Contains(item)==true)
+                    if (templist.Contains(item) == true)
                     {
                         //check such item based on index
-                        this.checkedListBox1.SetItemChecked(this.checkedListBox1.Items.IndexOf(item),true);
+                        this.checkedListBox1.SetItemChecked(this.checkedListBox1.Items.IndexOf(item), true);
                     }
                 }
             }

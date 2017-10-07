@@ -45,6 +45,7 @@
             this.Label_OutPut = new System.Windows.Forms.Label();
             this.txt_OutPutPath = new System.Windows.Forms.TextBox();
             this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
+            this.treeview_Directories = new System.Windows.Forms.TreeView();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -152,9 +153,9 @@
             this.Label_Exclusion.AutoSize = true;
             this.Label_Exclusion.Location = new System.Drawing.Point(12, 55);
             this.Label_Exclusion.Name = "Label_Exclusion";
-            this.Label_Exclusion.Size = new System.Drawing.Size(386, 13);
+            this.Label_Exclusion.Size = new System.Drawing.Size(185, 13);
             this.Label_Exclusion.TabIndex = 1;
-            this.Label_Exclusion.Text = "Exclusion Folder Path (Need Complete Network Path and separate with comma):";
+            this.Label_Exclusion.Text = "Folders to Pack (de-select to exclude)";
             // 
             // label_Progress
             // 
@@ -221,11 +222,21 @@
             this.checkedListBox1.Size = new System.Drawing.Size(398, 229);
             this.checkedListBox1.TabIndex = 9;
             // 
+            // treeview_Directories
+            // 
+            this.treeview_Directories.CheckBoxes = true;
+            this.treeview_Directories.Location = new System.Drawing.Point(824, 71);
+            this.treeview_Directories.Name = "treeview_Directories";
+            this.treeview_Directories.Size = new System.Drawing.Size(448, 302);
+            this.treeview_Directories.TabIndex = 10;
+            this.treeview_Directories.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.node_AfterCheck);
+            // 
             // frm_dm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(750, 577);
+            this.ClientSize = new System.Drawing.Size(1448, 577);
+            this.Controls.Add(this.treeview_Directories);
             this.Controls.Add(this.checkedListBox1);
             this.Controls.Add(this.chkbox_AllowMultiPath);
             this.Controls.Add(this.label_Progress);
@@ -270,6 +281,7 @@
         private System.Windows.Forms.Label Label_OutPut;
         private System.Windows.Forms.TextBox txt_OutPutPath;
         private System.Windows.Forms.CheckedListBox checkedListBox1;
+        private System.Windows.Forms.TreeView treeview_Directories;
     }
 }
 
