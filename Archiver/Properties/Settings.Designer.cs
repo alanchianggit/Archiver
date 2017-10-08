@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ALSData.Properties {
+namespace Archiver.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
