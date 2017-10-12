@@ -81,11 +81,8 @@ namespace Archiver
                 }
                 catch (System.InvalidOperationException exc)
                 {
-
                     UpdateStatusConsole(string.Format("Error occurred in {1} module : {0}.", exc.Message, System.Reflection.MethodBase.GetCurrentMethod().Name));
                 }
-
-
             }
             try
             {
