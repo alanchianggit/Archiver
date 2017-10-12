@@ -276,7 +276,6 @@ namespace Archiver
                             this.txt_status.AppendText(Environment.NewLine);
                         }
                         ));
-
         }
 
         private void ParseFolder(string folderPath)
